@@ -193,9 +193,7 @@ object ContactResolver {
         'त' to "t", 'थ' to "th", 'द' to "d", 'ध' to "dh", 'न' to "n",
         'प' to "p", 'फ' to "ph", 'ब' to "b", 'भ' to "bh", 'म' to "m",
         'य' to "y", 'र' to "r", 'ल' to "l", 'व' to "v", 'श' to "sh",
-        'ष' to "sh", 'स' to "s", 'ह' to "h", 'ळ' to "l",
-        'क़' to "q", 'ख़' to "kh", 'ग़' to "g", 'ज़' to "z", 'ड़' to "r",
-        'ढ़' to "rh", 'फ़' to "f", 'य़' to "y"
+        'ष' to "sh", 'स' to "s", 'ह' to "h", 'ळ' to "l"
     )
     private val nuktaConsonants = mapOf(
         'क' to "q", 'ख' to "kh", 'ग' to "g", 'ज' to "z",
