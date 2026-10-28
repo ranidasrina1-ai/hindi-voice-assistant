@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hindi Voice Assistant</string>
+    <string name="tile_label">Voice Assistant</string>
+    <string name="accessibility_service_label">WhatsApp Send Button</string>
+    <string name="accessibility_description">Sirf WhatsApp ke send button ko click karta hai. Screen ka content store nahi hota.</string>
+
+    <string name="notification_channel_name">Voice commands</string>
+    <string name="notification_channel_description">Sunne ke waqt dikhne wali notification</string>
+    <string name="notification_listening_title">Sun raha hoon</string>
+    <string name="notification_listening_text">Command bolo. Chup hone par apne aap ruk jayega.</string>
+    <string name="notification_cancel">Cancel</string>
+    <string name="confirm_channel_name">Confirmation</string>
+    <string name="confirm_channel_description">Call aur WhatsApp confirmation</string>
+
+    <string name="shortcut_short_label">Bol</string>
+    <string name="shortcut_long_label">Voice command bolo</string>
+    <string name="shortcut_disabled">Shortcut abhi available nahi hai</string>
+
+    <string name="language">Bhasha</string>
+    <string name="hindi">Hindi</string>
+    <string name="english">English</string>
+    <string name="tap_to_speak">Bolne ke liye dabao</string>
+    <string name="listening">Sun raha hoon…</string>
+    <string name="thinking">Samajh raha hoon…</string>
+    <string name="ready">Taiyar</string>
+    <string name="setup">Setup</string>
+    <string name="setup_intro">Pehli baar ye permissions aur settings chahiye. Baad me sirf mic dabana hoga.</string>
+    <string name="grant">Permission do</string>
+    <string name="enable">Kholo</string>
+    <string name="microphone">Microphone</string>
+    <string name="notifications">Notifications</string>
+    <string name="contacts">Contacts</string>
+    <string name="phone">Phone calls</string>
+    <string name="accessibility">WhatsApp auto-send</string>
+    <string name="allowed">Allowed</string>
+    <string name="not_allowed">Not allowed</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="accessibility_help_title">WhatsApp auto-send on karna</string>
+    <string name="accessibility_help_body">1. Accessibility settings kholo.\n2. Hindi Voice Assistant / WhatsApp Send Button chuno.\n3. On karo.\n\nAgar option lock dikhe: App info > upar ke 3 dots > Allow restricted settings. Ye Android ka security step hai, koi bypass nahi.</string>
+    <string name="close">Band karo</string>
+    <string name="qwen_title">Local AI fallback (Qwen)</string>
+    <string name="qwen_body">Rule parser fail hone par 0.5B model command samjhega. Model 428 MB hai aur WiFi se download hoga.</string>
+    <string name="qwen_download">Download model (WiFi)</string>
+    <string name="qwen_downloading">Download ho raha hai…</string>
+    <string name="qwen_ready">Model ready</string>
+    <string name="qwen_verify">Verify ho raha hai…</string>
+    <string name="qwen_wifi">WiFi se connect karo. Download apne aap shuru hoga.</string>
+    <string name="qwen_keep_open">Download ke waqt app open rakho. Adhoora download dobara try karne par resume hoga.</string>
+    <string name="confirm_call_title">Call karein?</string>
+    <string name="confirm_whatsapp_title">WhatsApp message bhejein?</string>
+    <string name="contact">Contact</string>
+    <string name="message">Message</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="status_idle">Mic dabao aur command bolo.</string>
+    <string name="status_no_speech">Kuch sunai nahi diya. Dobara bolo.</string>
+    <string name="status_mic_permission">Microphone permission chahiye.</string>
+    <string name="status_model_missing">Voice model install nahi hua. App dobara kholo.</string>
+    <string name="status_unknown">Command samajh nahi aaya. Jaise: “Google par weather search karo”, “Rahul ko call karo”, “Song play karo”.</string>
+    <string name="status_contact_missing">Contact nahi mila. Pura naam bolo ya number bolo.</string>
+    <string name="status_whatsapp_missing">WhatsApp install nahi hai.</string>
+    <string name="status_archive_missing">ArchiveTune install nahi hai.</string>
+    <string name="status_accessibility_missing">WhatsApp send button auto-click nahi hua. Accessibility on karo ya manually Send dabao.</string>
+    <string name="status_done">Ho gaya.</string>
+    <string name="status_message_missing">WhatsApp message bolo, phir bhejo.</string>
+    <string name="status_cancelled">Command cancel ho gaya.</string>
+    <string name="shortcut_listen_short">Command bolo</string>
+    <string name="shortcut_listen_long">Voice command bolo</string>
+</resources>

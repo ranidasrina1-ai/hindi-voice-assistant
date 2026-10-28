@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="listen"
+        android:shortcutLongLabel="@string/shortcut_listen_long"
+        android:shortcutShortLabel="@string/shortcut_listen_short">
+        <intent
+            android:action="com.voiceassistant.hindi.START_LISTENING"
+            android:targetClass="com.voiceassistant.hindi.MainActivity"
+            android:targetPackage="com.voiceassistant.hindi" />
+    </shortcut>
+</shortcuts>
