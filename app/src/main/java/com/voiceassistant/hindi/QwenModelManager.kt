@@ -31,6 +31,14 @@ data class QwenSnapshot(
             if (total <= 0L) return 0f
             return (downloaded.toDouble() / total.toDouble()).toFloat().coerceIn(0f, 1f)
         }
+
+    val percent: Int
+        get() = (progress * 100f).toInt().coerceIn(0, 100)
+
+    val inProgress: Boolean
+        get() = phase == QwenPhase.WAITING ||
+            phase == QwenPhase.DOWNLOADING ||
+            phase == QwenPhase.VERIFYING
 }
 
 object QwenModelManager {
@@ -76,12 +84,14 @@ object QwenModelManager {
                             settings.qwenDownloadId = -1L
                         } else {
                             val status = it.getInt(it.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS))
-                            val downloaded = it.getLong(
+                            val reported = it.getLong(
                                 it.getColumnIndexOrThrow(DownloadManager.COLUMN_BYTES_DOWNLOADED_SO_FAR)
                             ).coerceAtLeast(0L)
-                            val total = it.getLong(
+                            val downloaded = reported.coerceAtLeast(file.length().coerceAtLeast(0L))
+                            val reportedTotal = it.getLong(
                                 it.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES)
                             ).takeIf { value -> value > 0L } ?: EXPECTED_SIZE
+                            val total = reportedTotal.coerceAtLeast(downloaded)
 
                             when (status) {
                                 DownloadManager.STATUS_RUNNING -> return QwenSnapshot(
@@ -182,7 +192,7 @@ object QwenModelManager {
             .setAllowedOverMetered(false)
             .setAllowedOverRoaming(false)
             .setMimeType("application/octet-stream")
-            .addRequestHeader("User-Agent", "HindiVoiceAssistant/1.0")
+            .addRequestHeader("User-Agent", "HindiVoiceAssistant/1.0.1")
 
         return try {
             settings.qwenError = null

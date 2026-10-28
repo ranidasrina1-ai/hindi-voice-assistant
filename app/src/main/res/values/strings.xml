@@ -43,7 +43,8 @@
     <string name="qwen_title">Local AI fallback (Qwen)</string>
     <string name="qwen_body">Rule parser fail hone par 0.5B model command samjhega. Model 428 MB hai aur WiFi se download hoga.</string>
     <string name="qwen_download">Download model (WiFi)</string>
-    <string name="qwen_downloading">Download ho raha hai…</string>
+    <string name="qwen_downloading">Local AI model download ho raha hai…</string>
+    <string name="qwen_progress">%1$d%%</string>
     <string name="qwen_ready">Model ready</string>
     <string name="qwen_verify">Verify ho raha hai…</string>
     <string name="qwen_wifi">WiFi se connect karo. Download apne aap shuru hoga.</string>
@@ -58,7 +59,7 @@
     <string name="status_no_speech">Kuch sunai nahi diya. Dobara bolo.</string>
     <string name="status_mic_permission">Microphone permission chahiye.</string>
     <string name="status_model_missing">Voice model install nahi hua. App dobara kholo.</string>
-    <string name="status_unknown">Command samajh nahi aaya. Jaise: “Google par weather search karo”, “Rahul ko call karo”, “Song play karo”.</string>
+    <string name="status_unknown">Command samajh nahi aaya. Jaise: “Google par weather search karo”, “Amit ko call karo”, “Kesariya chalao”.</string>
     <string name="status_contact_missing">Contact nahi mila. Pura naam bolo ya number bolo.</string>
     <string name="status_whatsapp_missing">WhatsApp install nahi hai.</string>
     <string name="status_archive_missing">ArchiveTune install nahi hai.</string>
@@ -66,6 +67,9 @@
     <string name="status_done">Ho gaya.</string>
     <string name="status_message_missing">WhatsApp message bolo, phir bhejo.</string>
     <string name="status_cancelled">Command cancel ho gaya.</string>
+    <string name="listening_log_title">Sunne ka log</string>
+    <string name="listening_log_empty">Abhi koi command record nahi hui.</string>
+    <string name="clear_log">Clear</string>
     <string name="shortcut_listen_short">Command bolo</string>
     <string name="shortcut_listen_long">Voice command bolo</string>
 </resources>

@@ -14,6 +14,9 @@ Package: `com.voiceassistant.hindi`
 - Play a song in ArchiveTune (`moe.rukamori.archivetune`)
 - Local rule parser first; Qwen2.5-0.5B JSON fallback only when rules fail
 - Hindi/Hinglish and English speech models
+- Visible Qwen download progress with percentage and MB counter
+- On-device transcript log of recent commands, clearable from the app
+- Flexible contact phrasing and Hindi-to-Latin contact-name matching
 - Tap-to-talk, home screen shortcut, and Quick Settings tile
 - Confirmation screen before calls and WhatsApp messages
 - No account, no cloud speech API
@@ -24,20 +27,24 @@ Package: `com.voiceassistant.hindi`
 Google par weather search karo
 Weather search karo
 Search cricket score on Google
-Rahul Sharma ko call karo
+Amit Kumar ko call karo
+Priya se baat karo
 Call Rahul
 Rahul ko phone lagao
+Sneha ko message bhejo ki kal milte hain
 Rahul Sharma ko WhatsApp par message bhejo ki main ghar aa raha hoon
 WhatsApp par Rahul ko message bhejo ki hello
 ArchiveTune par Kesariya play karo
-Kesariya play karo
-Kesariya gaana chalao
+Kesariya chalao
 गूगल पर मौसम खोजो
+मौसम बताओ
 राहुल को कॉल करो
+राहुल को फ़ोन करो
+राहुल को मेसेज भेजो कि कल मिलते हैं
 व्हाट्सएप पर राहुल को मैसेज भेजो कि नमस्ते
 ```
 
-Contact names are matched from the phone's contacts. A spoken number can also be used. Calls and WhatsApp always require confirmation.
+Contact names are matched from the phone's contacts. Hindi/Devanagari names are transliterated so they can match Latin-saved contacts, with fuzzy matching for small recognition errors. A spoken number can also be used. Calls and WhatsApp always require confirmation.
 
 ## How it works
 
@@ -124,11 +131,11 @@ Repository -> Settings -> Secrets and variables -> Actions -> New repository sec
 
 Actions -> **Build release APK** -> **Run workflow**.
 
-When it finishes, download `HindiVoiceAssistant-v1.0.0.apk` from the workflow artifact. For a GitHub Release, push a version tag:
+When it finishes, download `HindiVoiceAssistant-v1.0.1.apk` from the workflow artifact. For a GitHub Release, push a version tag:
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
 ## Install on the phone
@@ -155,7 +162,7 @@ Android 14 requires the microphone foreground service to start from a visible ap
 - The AccessibilityService is limited to `com.whatsapp` and `com.whatsapp.w4b` in its config.
 - It traverses the current WhatsApp window only to find and click the send button. It does not store, log, or transmit screen content.
 - App backups are disabled.
-- Commands are not logged to disk.
+- The last 20 recognized commands are stored locally on the device so they can be reviewed in the app. They are never uploaded, and **Clear** removes them.
 
 ## Architecture
 
@@ -172,6 +179,7 @@ MainActivity / Compose UI
             -> call intent
             -> WhatsApp intent + AccessibilityService send click
             -> ArchiveTune MEDIA_PLAY_FROM_SEARCH intent
+  -> AssistantLog (recent commands, local only)
   -> QwenModelManager (DownloadManager + SHA-256)
 ```
 

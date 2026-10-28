@@ -37,6 +37,11 @@ WHATSAPP: send a WhatsApp message. Put the person in contact and the message in 
 PLAY_MUSIC: play a song in ArchiveTune. Put the song name in query.
 UNKNOWN: only if the command is not one of the above.
 Use null for fields that are not needed. Keep names and messages exactly as spoken. Do not invent a contact or message.
+Examples:
+"Google par weather search karo" -> {"intent":"SEARCH","contact":null,"query":"weather","message":null}
+"Amit ko call karo" -> {"intent":"CALL","contact":"Amit","query":null,"message":null}
+"Priya ko message bhejo ki kal milte hain" -> {"intent":"WHATSAPP","contact":"Priya","query":null,"message":"kal milte hain"}
+"Kesariya chalao" -> {"intent":"PLAY_MUSIC","contact":null,"query":"Kesariya","message":null}
 <|im_end|>
 <|im_start|>user
 Transcript: "$safeTranscript"

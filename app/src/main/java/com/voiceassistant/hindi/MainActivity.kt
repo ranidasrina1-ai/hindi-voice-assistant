@@ -65,6 +65,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             HindiVoiceAssistantTheme {
                 val state by AssistantState.state.collectAsStateWithLifecycle()
+                val log by AssistantLog.entries.collectAsStateWithLifecycle()
                 var language by remember { mutableStateOf(settings.language) }
                 var qwen by remember { mutableStateOf(QwenModelManager.safeSnapshot(this@MainActivity)) }
                 var verifying by remember { mutableStateOf(false) }
@@ -115,7 +116,7 @@ class MainActivity : ComponentActivity() {
                             } else {
                                 qwen = snapshot
                             }
-                            delay(1000L)
+                            delay(if (snapshot.inProgress) 600L else 2000L)
                         }
                     }
                 }
@@ -167,7 +168,9 @@ class MainActivity : ComponentActivity() {
                         }
                     },
                     onConfirm = { confirmPending() },
-                    onCancelPending = { cancelPending() }
+                    onCancelPending = { cancelPending() },
+                    log = log,
+                    onClearLog = { AssistantLog.clear(this@MainActivity) }
                 )
             }
         }

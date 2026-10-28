@@ -39,18 +39,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.voiceassistant.hindi.AssistantLanguage
+import com.voiceassistant.hindi.AssistantLogEntry
 import com.voiceassistant.hindi.AssistantPhase
 import com.voiceassistant.hindi.AssistantUiState
 import com.voiceassistant.hindi.IntentType
 import com.voiceassistant.hindi.QwenPhase
 import com.voiceassistant.hindi.QwenSnapshot
 import com.voiceassistant.hindi.R
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -71,7 +75,9 @@ fun HomeScreen(
     onOpenAppInfo: () -> Unit,
     onDownloadQwen: () -> Unit,
     onConfirm: () -> Unit,
-    onCancelPending: () -> Unit
+    onCancelPending: () -> Unit,
+    log: List<AssistantLogEntry>,
+    onClearLog: () -> Unit
 ) {
     var showAccessibilityHelp by remember { mutableStateOf(false) }
 
@@ -113,6 +119,11 @@ fun HomeScreen(
                         }
                     )
                 }
+            }
+
+            if (qwen.inProgress) {
+                Spacer(Modifier.height(16.dp))
+                QwenProgressBanner(qwen)
             }
 
             Spacer(Modifier.height(24.dp))
@@ -195,6 +206,9 @@ fun HomeScreen(
                     }
                 )
             }
+
+            Spacer(Modifier.height(18.dp))
+            ListeningLogCard(entries = log, onClear = onClearLog)
 
             Spacer(Modifier.height(28.dp))
             SectionTitle(stringResource(R.string.setup))
@@ -339,6 +353,117 @@ fun HomeScreen(
 }
 
 @Composable
+private fun QwenProgressBanner(qwen: QwenSnapshot) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = if (qwen.phase == QwenPhase.VERIFYING) {
+                    stringResource(R.string.qwen_verify)
+                } else {
+                    stringResource(R.string.qwen_downloading)
+                },
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold
+            )
+            LinearProgressIndicator(
+                progress = { qwen.progress },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.qwen_progress, qwen.percent),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = String.format(
+                        Locale.US,
+                        "%.0f / %.0f MB",
+                        qwen.downloaded / 1_000_000.0,
+                        qwen.total / 1_000_000.0
+                    ),
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+            if (!qwen.message.isNullOrBlank()) {
+                Text(
+                    text = qwen.message.orEmpty(),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListeningLogCard(entries: List<AssistantLogEntry>, onClear: () -> Unit) {
+    val context = LocalContext.current
+    val timeFormat = remember(context) {
+        android.text.format.DateFormat.getTimeFormat(context)
+    }
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = stringResource(R.string.listening_log_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f)
+                )
+                if (entries.isNotEmpty()) {
+                    TextButton(onClick = onClear) {
+                        Text(stringResource(R.string.clear_log))
+                    }
+                }
+            }
+
+            if (entries.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.listening_log_empty),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                entries.takeLast(8).asReversed().forEach { entry ->
+                    Row(verticalAlignment = Alignment.Top) {
+                        Text(
+                            text = timeFormat.format(Date(entry.timestamp)),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "“${entry.transcript}”",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = FontFamily.Monospace
+                            ),
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 10.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SectionTitle(text: String) {
     Text(
         text = text,
@@ -419,6 +544,11 @@ private fun QwenCard(qwen: QwenSnapshot, onDownload: () -> Unit) {
                     LinearProgressIndicator(
                         progress = { qwen.progress },
                         modifier = Modifier.fillMaxWidth()
+                    )
+                    Text(
+                        text = stringResource(R.string.qwen_progress, qwen.percent),
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.SemiBold
                     )
                     Text(
                         text = String.format(

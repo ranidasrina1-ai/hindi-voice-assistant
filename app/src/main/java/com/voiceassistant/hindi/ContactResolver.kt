@@ -85,17 +85,60 @@ object ContactResolver {
         if (name.startsWith("$query ")) return 90
         if (name.contains(query)) return 75
         if (query.contains(name)) return 65
+        if (query.length >= 4 && name.length >= 4 &&
+            Math.abs(query.length - name.length) <= 1 &&
+            editDistance(query, name) <= 1
+        ) {
+            return 62
+        }
 
         val queryTokens = query.split(' ').filter { it.isNotBlank() }
-        val nameTokens = name.split(' ').filter { it.isNotBlank() }.toSet()
+        val nameTokens = name.split(' ').filter { it.isNotBlank() }
         if (queryTokens.isEmpty()) return 0
-        val overlap = queryTokens.count { it in nameTokens }
-        val ratio = overlap.toDouble() / queryTokens.size
+
+        val exactOverlap = queryTokens.count { it in nameTokens }
+        val fuzzyOverlap = queryTokens.count { queryToken ->
+            nameTokens.any { nameToken -> tokensSimilar(queryToken, nameToken) }
+        }
+        val nameCovered = nameTokens.isNotEmpty() && nameTokens.all { nameToken ->
+            queryTokens.any { queryToken -> tokensSimilar(queryToken, nameToken) }
+        }
+        val ratio = exactOverlap.toDouble() / queryTokens.size
         return when {
-            overlap == queryTokens.size -> 60
+            exactOverlap == queryTokens.size -> 60
+            fuzzyOverlap == queryTokens.size -> 58
+            nameCovered -> 56
             ratio >= 0.6 -> 55
+            fuzzyOverlap >= 2 && fuzzyOverlap.toDouble() / queryTokens.size >= 0.6 -> 52
             else -> 0
         }
+    }
+
+    private fun tokensSimilar(left: String, right: String): Boolean {
+        if (left == right) return true
+        if (left.length < 4 || right.length < 4) return false
+        if (Math.abs(left.length - right.length) > 1) return false
+        return editDistance(left, right) <= 1
+    }
+
+    private fun editDistance(left: String, right: String): Int {
+        var previous = IntArray(right.length + 1) { it }
+        var current = IntArray(right.length + 1)
+        for (i in 1..left.length) {
+            current[0] = i
+            for (j in 1..right.length) {
+                val substitution = previous[j - 1] + if (left[i - 1] == right[j - 1]) 0 else 1
+                current[j] = minOf(
+                    previous[j] + 1,
+                    current[j - 1] + 1,
+                    substitution
+                )
+            }
+            val swap = previous
+            previous = current
+            current = swap
+        }
+        return previous[right.length]
     }
 
     private fun loadContacts(context: Context): List<Entry> {
@@ -139,12 +182,89 @@ object ContactResolver {
         return list
     }
 
+    private val independentVowels = mapOf(
+        'अ' to "a", 'आ' to "aa", 'इ' to "i", 'ई' to "ee", 'उ' to "u", 'ऊ' to "oo",
+        'ऋ' to "ri", 'ए' to "e", 'ऐ' to "ai", 'ओ' to "o", 'औ' to "au"
+    )
+    private val consonants = mapOf(
+        'क' to "k", 'ख' to "kh", 'ग' to "g", 'घ' to "gh", 'ङ' to "ng",
+        'च' to "ch", 'छ' to "chh", 'ज' to "j", 'झ' to "jh", 'ञ' to "n",
+        'ट' to "t", 'ठ' to "th", 'ड' to "d", 'ढ' to "dh", 'ण' to "n",
+        'त' to "t", 'थ' to "th", 'द' to "d", 'ध' to "dh", 'न' to "n",
+        'प' to "p", 'फ' to "ph", 'ब' to "b", 'भ' to "bh", 'म' to "m",
+        'य' to "y", 'र' to "r", 'ल' to "l", 'व' to "v", 'श' to "sh",
+        'ष' to "sh", 'स' to "s", 'ह' to "h", 'ळ' to "l",
+        'क़' to "q", 'ख़' to "kh", 'ग़' to "g", 'ज़' to "z", 'ड़' to "r",
+        'ढ़' to "rh", 'फ़' to "f", 'य़' to "y"
+    )
+    private val nuktaConsonants = mapOf(
+        'क' to "q", 'ख' to "kh", 'ग' to "g", 'ज' to "z",
+        'ड' to "r", 'ढ' to "rh", 'फ' to "f", 'य' to "y"
+    )
+    private val vowelSigns = mapOf(
+        'ा' to "aa", 'ि' to "i", 'ी' to "ee", 'ु' to "u", 'ू' to "oo",
+        'ृ' to "ri", 'े' to "e", 'ै' to "ai", 'ो' to "o", 'ौ' to "au",
+        'ं' to "n", 'ँ' to "n", 'ः' to "h"
+    )
+
     private fun normalizeName(value: String): String {
-        return Normalizer.normalize(value, Normalizer.Form.NFKC)
+        return romanize(Normalizer.normalize(value, Normalizer.Form.NFKC))
             .lowercase(Locale.ROOT)
             .replace(unsafe, " ")
             .replace(whitespace, " ")
             .trim()
+    }
+
+    private fun romanize(value: String): String {
+        val output = StringBuilder(value.length + 8)
+        var index = 0
+        while (index < value.length) {
+            val character = value[index]
+            val independent = independentVowels[character]
+            if (independent != null) {
+                output.append(independent)
+                index++
+                continue
+            }
+
+            val consonant = consonants[character]
+            if (consonant != null) {
+                output.append(consonant)
+                index++
+                if (index < value.length && value[index] == '़') {
+                    val nukta = nuktaConsonants[character]
+                    if (nukta != null) {
+                        output.setLength(output.length - consonant.length)
+                        output.append(nukta)
+                    }
+                    index++
+                }
+                if (index >= value.length) continue
+                if (value[index] == '्') {
+                    index++
+                    continue
+                }
+                val sign = vowelSigns[value[index]]
+                if (sign != null) {
+                    output.append(sign)
+                    index++
+                    continue
+                }
+                if (value[index].isLetter()) output.append('a')
+                continue
+            }
+
+            val sign = vowelSigns[character]
+            if (sign != null) {
+                output.append(sign)
+                index++
+                continue
+            }
+
+            output.append(character)
+            index++
+        }
+        return output.toString()
     }
 
     private fun normalizeNumber(raw: String): String? {

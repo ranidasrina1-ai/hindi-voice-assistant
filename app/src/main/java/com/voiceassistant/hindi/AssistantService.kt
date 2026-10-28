@@ -30,7 +30,6 @@ import kotlinx.coroutines.launch
 import org.json.JSONObject
 import org.vosk.Model
 import org.vosk.Recognizer
-import java.io.File
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.sqrt
@@ -113,8 +112,9 @@ class AssistantService : Service() {
             AssistantState.status("Voice model taiyar kar raha hoon…")
             updateNotification("Voice model taiyar kar raha hoon…")
 
-            val modelDir: File = try {
+            val model = try {
                 ModelInstaller.ensureInstalled(this, language)
+                VoskModelCache.acquire(this, language)
             } catch (_: Exception) {
                 AssistantState.error(getString(R.string.status_model_missing))
                 return
@@ -122,7 +122,7 @@ class AssistantService : Service() {
             currentCoroutineContext().ensureActive()
             requestAudioFocus()
             AssistantState.status(getString(R.string.listening))
-            val transcript = recordAndRecognize(modelDir)
+            val transcript = recordAndRecognize(model)
             abandonAudioFocus()
             currentCoroutineContext().ensureActive()
 
@@ -132,6 +132,7 @@ class AssistantService : Service() {
             }
 
             AssistantState.transcript(transcript)
+            AssistantLog.record(this, transcript)
 
             val pending = AssistantState.state.value.pendingAction
             if (pending != null) {
@@ -275,8 +276,7 @@ class AssistantService : Service() {
         }
     }
 
-    private suspend fun recordAndRecognize(modelDir: File): String {
-        val model = Model(modelDir.absolutePath)
+    private suspend fun recordAndRecognize(model: Model): String {
         var recognizer: Recognizer? = null
         var recorder: AudioRecord? = null
 
@@ -356,7 +356,6 @@ class AssistantService : Service() {
             runCatching { recorder?.stop() }
             runCatching { recorder?.release() }
             runCatching { recognizer?.close() }
-            runCatching { model.close() }
         }
     }
 
